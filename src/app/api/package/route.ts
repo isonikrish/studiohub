@@ -47,7 +47,11 @@ export async function POST(req: Request) {
 
 export async function GET() {
   try {
-    const packages = await prisma.package.findMany();
+    const packages = await prisma.package.findMany({
+      include: {
+        bookings: true,
+      },
+    });
     return NextResponse.json(packages, { status: 200 });
   } catch (error) {
     return NextResponse.json({ msg: "Internal Server Error" }, { status: 500 });

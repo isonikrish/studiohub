@@ -39,7 +39,7 @@ model Booking {
   scheduledAt DateTime
   status      BookingStatus @default(PENDING)
   createdAt   DateTime      @default(now())
-  descruption String
+  description String
   package Package @relation(fields: [packageId], references: [id])
   client  User    @relation(fields: [clientId], references: [id])
 }

@@ -1,4 +1,4 @@
-import { generateTokenAndSetCookie } from "@/lib/generateToken";
+import { generateTokenAndSetCookie, getToken } from "@/lib/generateToken";
 import { prisma } from "@/lib/prisma";
 import bcrypt from "bcryptjs";
 import { NextResponse } from "next/server";
@@ -39,6 +39,32 @@ export async function POST(req: Request) {
     );
     const res = generateTokenAndSetCookie(user?.id, response);
     return res;
+  } catch (error) {
+    return NextResponse.json({ msg: "Internal Server Error" }, { status: 500 });
+  }
+}
+
+export async function GET() {
+  const id = await getToken();
+  try {
+    if (!id) {
+      return NextResponse.json({ msg: "Unauthorized" }, { status: 401 });
+    }
+    const user = await prisma.user.findUnique({
+      where: {
+        id,
+      },
+      include: {
+        packages: true,
+        bookings: true,
+      },
+    });
+
+    if (!user) {
+      return NextResponse.json({ msg: "User not found" }, { status: 404 });
+    }
+
+    return NextResponse.json(user, { status: 200 });
   } catch (error) {
     return NextResponse.json({ msg: "Internal Server Error" }, { status: 500 });
   }
